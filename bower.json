@@ -1,0 +1,23 @@
+{
+  "name": "poll",
+  "version": "0.0.0",
+  "homepage": "https://github.com/scriptology/poll",
+  "authors": [
+    "Andrey Soloviev <andreysoloweb@gmail.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.2.3",
+    "jquery": "~2.1.4"
+  }
+}
