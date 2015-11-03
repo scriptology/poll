@@ -8,7 +8,8 @@ module.exports = {
     },
     output:  {
         path:  __dirname + '/dist/',
-        filename: '[name].js' // Template based on keys in entry above
+        filename: '[name].js', // Template based on keys in entry above
+        library: 'app'
     },
     module:  {
         loaders: [
@@ -20,6 +21,10 @@ module.exports = {
                 test: /\.css$/,
                 loader: ExtractTextPlugin.extract("style-loader", "css-loader")
             },
+
+            // IMAGES
+            { test: /\.(png|jpg|jpeg|gif|woff)$/, loader: 'url-loader?limit=8192' },
+
             // SASS
             {
                 test: /\.sass$/,
@@ -28,10 +33,16 @@ module.exports = {
         ]
     },
     plugins: [
+        new BowerWebpackPlugin({
+          excludes: /.*\.less$/
+        }),
+
         new webpack.ProvidePlugin({
             $:      "jquery",
-            jQuery: "jquery"
+            jQuery: "jquery",
+            _: "underscore",
         }),
+
         new ExtractTextPlugin('[name].css', {
             allChunks: true
         })

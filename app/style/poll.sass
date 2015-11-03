@@ -1,9 +1,423 @@
 body
-	background: #ccc
+  background: #fff
+*
+  margin: 0
+  padding: 0
 
-.content
-	width: 1000px
-	margin: 0 auto
-	background: #bcbcbc
-	height: 600px
-	border: 1px dotted #bcbcbc
+p
+  color: #000000
+
+.poll-container
+  width: 100%
+  margin: auto
+  position: relative
+  overflow: hidden
+
+.poll-header
+  display: table
+  width: 100%
+  max-width: 990px
+  margin: 0 auto
+
+.poll-content
+  width: 100%
+  position: relative
+  overflow: hidden
+
+.poll
+  width: 100%
+  max-width: 990px
+  margin: 0 auto
+  display: table
+
+.box-list
+  display: block
+  width: 100%
+  max-height: 500px
+  overflow: hidden
+  position: relative
+
+.box-detail
+  display: table-cell
+  width: 70%
+  overflow: hidden
+  vertical-align: middle
+  padding-bottom: 130px
+  position: relative
+
+.poll-bg
+  width: 100%
+  position: absolute
+  top: 0
+  left: 0
+  background: url("../img/bg-question.jpg") no-repeat
+  background-size: cover
+  min-height: 500px
+  z-index: -1
+  &:after
+    content: ''
+    background: rgba(0, 0, 0, 0.5)
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+
+.poll-prise, .poll-question-remain
+  display: table-cell
+  width: 50%
+  padding: 30px 0
+  vertical-align: bottom
+
+.poll-prise
+  text-align: left
+  padding-right: 2%
+
+.poll-question-remain
+  text-align: right
+  padding-left: 2%
+
+.poll-prise
+  h3
+    font: 900 24px/28px "Helvetica Neue", sans-serif
+    color: #e11b22
+    text-transform: uppercase
+  p
+    font: 100 24px/28px "Helvetica Neue", sans-serif
+
+.poll-header a
+  font: 600 12px/14px "Helvetica Neue", sans-serif
+  color: #39ada7
+  text-transform: uppercase
+
+.poll-question-remain
+  p
+    font: 400 12px/14px "Helvetica Neue", sans-serif
+    text-transform: uppercase
+  .js-question-remain
+    font: 600 42px/42px "Helvetica Neue", sans-serif
+    color: #e11b22
+
+.questions-list
+  list-style: none
+  .question
+    background-color: #e9eaea
+    padding: 22px 0
+    cursor: pointer
+    border-bottom: 1px solid #c0dfdd
+    &:last-of-type
+      border-bottom: none
+    &.active
+      background: #39ada7
+      p
+        color: #ffffff
+    p
+      position: relative
+      font: 300 15px/18px "Helvetica Neue", sans-serif
+      padding-left: 40px
+      padding-right: 20px
+      span
+        position: absolute
+        top: 0
+        left: 15px
+        width: 16px
+        height: 24px
+        text-align: center
+        font: 600 18px/18px "Helvetica Neue", sans-serif
+    &.answered p span
+      background: url("../img/poll-done.png") no-repeat
+      text-indent: -9000px
+
+.question-detail
+  display: block
+
+.question-detail-form
+  text-align: center
+  width: 100%
+
+.question-detail
+  h1
+    font: 100 24px/30px "Helvetica Neue", sans-serif
+    color: #ffffff
+    padding: 30px 10%
+    text-align: center
+  .description
+    font: 100 16px/20px "Helvetica Neue", sans-serif
+    color: #ffffff
+    padding: 0 10%
+    margin-bottom: 20px
+    text-align: center
+
+.question-detail-form
+  label
+    display: block
+    padding: 8px 10px
+    color: #ffffff
+    font: 100 15px/20px "Helvetica Neue", sans-serif
+  input, .selectize-input.items
+    width: 60%
+    max-width: 400px
+    padding: 15px 20px
+    outline: none
+    border-radius: 27px
+    border: 2px solid #ffffff
+    font: 600 15px/20px "Helvetica Neue", sans-serif
+    text-align: center
+    text-transform: uppercase
+    box-sizing: border-box
+    -webkit-transition: border-color 0.2s linear
+    -moz-transition: border-color 0.2s linear
+    -o-transition: border-color 0.2s linear
+    transition: border-color 0.2s linear
+  .box-buttons
+    margin-top: 30px
+  &.-user .box-buttons
+    position: relative
+    bottom: 0
+    padding: 20px 0 40px
+  .btn
+    display: inline-block
+    padding: 15px 25px
+    margin: 5px 3px
+    font: 600 13px/20px "Helvetica Neue", sans-serif
+    color: #fff
+    background: none
+    cursor: pointer
+    text-transform: uppercase
+    border: 2px solid #ffffff
+    outline: none
+    border-radius: 50px
+    -webkit-transition: all 0.3s linear
+    -moz-transition: all 0.3s linear
+    -o-transition: all 0.3s linear
+    transition: all 0.3s linear
+  .-answer
+    color: #ffffff
+    border-color: #ffffff
+  .-skip, .disabled
+    color: rgba(255, 255, 255, 0.5)
+    border-color: rgba(255, 255, 255, 0.5)
+  .btn:hover
+    background: #ffffff
+    border-color: #ffffff
+    color: #39ada7
+  &.-user
+    width: 100%
+    padding: 0 10%
+    margin: 0 auto
+    font-size: 0
+    box-sizing: border-box
+    label
+      display: inline-block
+      position: relative
+      box-sizing: border-box
+      &.label-first-name, &.label-last-name, &.label-phone, &.label-email
+        width: 50%
+      span
+        position: absolute
+        top: 25px
+        left: 26px
+        font: 600 15px/20px "Helvetica Neue", sans-serif
+        color: #000000
+        text-transform: uppercase
+    input
+      font: 300 15px/21px "Helvetica Neue", sans-serif
+      text-align: left
+      width: 100%
+      box-sizing: border-box
+      border: 2px solid #ffffff
+    label
+      &.label-first-name input, &.label-last-name input, &.label-first-name span, &.label-last-name span
+        background: none
+        color: #ffffff
+      &.label-first-name input
+        padding-left: 65px
+      &.label-last-name input
+        padding-left: 110px
+      &.label-phone input
+        padding-left: 100px
+      &.label-email input
+        padding-left: 75px
+    .box-agree
+      display: table
+      padding: 20px 10px
+    label.label-agree
+      display: table-cell
+      width: 33%
+      padding: 10px 15px 10px 35px
+      font: 100 12px/13px "Helvetica Neue", sans-serif
+      text-align: left
+      position: relative
+      a
+        color: #2786a3
+      input
+        width: auto
+        position: absolute
+        top: 17px
+        left: 6px
+    .label-agree
+      input
+        display: none
+      label
+        &.checkbox
+          cursor: pointer
+          position: absolute
+          width: 24px
+          height: 24px
+          top: 11px
+          left: 0
+          padding: 0
+          background: #eaeaea
+          border: 1px solid #ddd
+          border-radius: 50%
+        &:after
+          opacity: 0.2
+          content: ''
+          position: absolute
+          width: 8px
+          height: 5px
+          background: transparent
+          top: 6px
+          left: 6px
+          border: 3px solid #333
+          border-top: none
+          border-right: none
+          -webkit-transform: rotate(-45deg)
+          -moz-transform: rotate(-45deg)
+          -o-transform: rotate(-45deg)
+          -ms-transform: rotate(-45deg)
+          transform: rotate(-45deg)
+        &:hover::after
+          opacity: 0.5
+      input[type=checkbox]:checked + label:after
+        opacity: 1
+        border-color: #ec2533
+  .selectize-input.items.dropdown-active
+    border-radius: 27px 27px 0 0
+  .selectize-dropdown, .selectize-dropdown-content
+    border: 2px solid #ffffff
+    outline: none
+    max-height: none
+    border-radius: 0 0 27px 27px
+  .selectize-dropdown
+    margin-top: -4px
+    border-top: 0
+  .selectize-dropdown-content
+    padding: 7px 0
+    font: 300 15px/21px "Helvetica Neue", sans-serif
+    .active
+      background: #39ada7
+      color: #ffffff
+      margin: 0 20px
+      border-radius: 20px
+
+.poll input.parsley-error, select.parsley-error, textarea.parsley-error
+  color: #EE232B
+  border: 2px solid #EE232B
+
+.question-detail-form
+  input.error-input
+    border-color: #ee232b !important
+  .selectize-input.error-input
+    border-color: #ee232b !important
+    + div
+      border-color: #ee232b !important
+
+.mobile
+  .question-detail h1, .poll-question-remain p
+    display: none
+  .box-detail
+    display: block
+    width: 100%
+  .box-list
+    max-height: none
+  .poll-prise
+    padding: 30px 0 40px 20px
+    h3
+      font-size: 5vw
+      line-height: 7vw
+    p
+      font-size: 4vw
+      line-height: 5vw
+  .poll-header a
+    font-size: 3vw
+    line-height: 5vw
+    color: #000000
+  .question-detail-form
+    label
+      padding: 8px 25px
+    input, .selectize-input.items
+      width: 100%
+      background-color: #ffffff
+      border-color: #39ada7
+      font-weight: 200
+    .box-buttons
+      padding: 0 20px
+      margin-top: 15px
+    .btn
+      background-color: #ffffff
+      border: 2px solid #39ada7
+      color: #000000
+      font-weight: 200
+  .questions-list .question
+    background-color: #ffffff
+    border-color: #e6e6e6
+    &.active
+      background-color: #ffffff
+    p
+      font: 100 22px/26px "Helvetica Neue", sans-serif
+    &.active p
+      color: #000000
+      margin-bottom: 20px
+    p span
+      font: 600 22px/24px "Helvetica Neue", sans-serif
+    &.answered p span
+      background-position: left 4px
+  .question-detail p.description
+    text-align: left
+    font: italic 200 15px/18px "Helvetica Neue", sans-serif
+  .question-detail-form
+    .selectize-dropdown
+      -webkit-box-shadow: none
+      -moz-box-shadow: none
+      box-shadow: none
+      border: 2px solid #39ada7
+      border-top: 0
+    &.-user
+      background: #39ada7
+      padding: 0 10px
+      h1
+        display: block
+        text-align: left
+        padding: 20px 20px
+        font: italic 200 24px/30px "Helvetica Neue", sans-serif
+      label
+        display: block
+        width: 100%
+        padding-top: 30px
+        text-align: left
+        span
+          top: 6px
+          color: #ffffff
+        &.label-agree
+          padding-top: 18px
+          font: 200 14px/16px "Helvetica Neue", sans-serif
+          color: #ffffff
+          a
+            font: 200 14px/16px "Helvetica Neue", sans-serif
+            color: #ffffff
+      .label-agree label.checkbox
+        top: 14px
+      .info input
+        padding: 15px 20px
+        background: #ffffff
+        color: #000000
+      .box-buttons
+        margin: 0
+        padding-bottom: 20px
+      .btn
+        background: #39ada7
+        color: #ffffff
+        border-color: #ffffff
+      .box-agree
+        padding: 20px 20px

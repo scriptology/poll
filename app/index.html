@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="app">
+<html>
 <head lang="en">
     <meta charset="UTF-8">
     <title>base app</title>
@@ -7,13 +7,118 @@
 </head>
 <body>
 
-    <h1>Base app</h1>
+  <div class="poll-container">
+      <div class="poll-header">
+          <div class="poll-prise">
+              <h3>Главный приз:</h3>
+              <p>Сертификат на $2000* на двоих. <a href="#">подробнее</a></p>
+          </div>
+          <div class="poll-question-remain js-poll-question-remain">
+              <p class="js-change-info">Осталось ответить на <span class="js-question-remain"></span>&nbsp;<span class="js-question-remain-text"></span></p>
+              <p>для того, чтобы принять участие в <a href="#">конкурсе</a></p>
+          </div>
+      </div>
+      <div class="poll-content">
+          <div class="poll-bg">
+              <div class="poll-bg-black"></div>
+          </div>
+          <div class="poll js-poll-init"></div>
+      </div>
+  </div>
 
-    <div class="content">
 
-    </div>
+  <script type="text/template" id="js-template-question">
+      <p><span><%= number %></span><%= name %></p>
+  </script>
 
-    <script src="Main.js"></script>
+  <script type="text/template" id="js-template-user-info">
+      <p><span></span>Заполнить данные</p>
+  </script>
+
+  <script type="text/template" id="js-template-question-detail-text">
+      <form class="question-detail-form">
+          <h1><%= name %></h1>
+          <p class="description"><%= description %></p>
+          <label>
+              <input type="text" class="js-field-answer" placeholder="Ваш ответ" value="<% if (typeof(answer) !== 'undefined') { %><%= answer %><% } %>" autocomplete="off" />
+          </label>
+          <div class="box-buttons">
+              <div class="btn -skip js-btn-skip">Пропустить</div>
+              <!--<input type="submit" value="asd" class="btn -answer js-btn-answer" />-->
+              <button class="btn -answer js-btn-answer disabled">Ответить</button>
+          </div>
+      </form>
+  </script>
+
+  <script type="text/template" id="js-template-question-detail-select">
+      <form class="question-detail-form">
+          <h1><%= name %></h1>
+          <p class="description"><%= description %></p>
+          <label>
+              <select class="js-selectize-poll" >
+                  <option value="">Выберите ответ</option>
+              </select>
+          </label>
+          <div class="box-buttons">
+              <div class="btn -skip js-btn-skip">Пропустить</div>
+              <!--<input type="submit" value="asd" class="btn -answer js-btn-answer" />-->
+              <button class="btn -answer js-btn-answer disabled">Ответить</button>
+          </div>
+      </form>
+  </script>
+
+  <script type="text/template" id="js-template-user-info-detail">
+      <form class="question-detail-form -user js-parsley-form">
+          <h1>Спасибо за ответы на вопросы.<br />Заполните форму участника для того чтобы мы могли с вами связаться</h1>
+          <label class="info label-first-name"><span>Имя</span>
+              <input type="text" id="js-first-name" value="<% if (typeof(firstName) !== 'undefined') { %><%= firstName %><% } %>" autocomplete="off" required />
+          </label>
+          <label class="info label-last-name"><span>Фамилия</span>
+              <input type="text" id="js-last-name" value="<% if (typeof(lastName) !== 'undefined') { %><%= lastName %><% } %>" autocomplete="off" required />
+          </label>
+          <label class="info label-phone"><span>Телефон</span>
+              <input type="text" id="js-phone" value="<% if (typeof(phone) !== 'undefined') { %><%= phone %><% } %>" autocomplete="off" required />
+          </label>
+          <label class="info label-email"><span>Email</span>
+              <input type="text" id="js-email" value="<% if (typeof(email) !== 'undefined') { %><%= email %><% } %>" autocomplete="off" required />
+          </label>
+          <div class="box-agree">
+              <label class="label-agree">
+                  <input type="checkbox" id="js-agree-partisipation" checked />
+                  <label class="checkbox" for="js-agree-partisipation"></label>
+                  Я согласен с <a href="#">правилами участия в конкурсе</a>
+              </label>
+              <label class="label-agree">
+                  <input type="checkbox" id="js-agree-policy" checked />
+                  <label class="checkbox" for="js-agree-policy"></label>
+                  Я согласен на обработку персональных данных
+              </label>
+              <label class="label-agree">
+                  <input type="checkbox" id="js-agree-news" checked />
+                  <label class="checkbox" for="js-agree-news"></label>
+                  Я хочу подписаться на новости сайта
+              </label>
+          </div>
+          <div class="box-buttons">
+              <div class="btn -answer js-btn-answer">Отправить</div>
+          </div>
+      </form>
+  </script>
+
+  <script type="text/template" id="js-template-thanks">
+      <h2><% if (typeof(firstName) !== 'undefined') { %><%= firstName %><% } %>, поздравляю, ты участвуешь в конкурсе!</h2>
+      <h2>А теперь расшарь меня нежно!</h2>
+  </script>
+
+  <!-- main js file -->
+  <script src="Main.js"></script>
+
+  <script>
+    var pollInit = new app.poll('.js-poll-init', {
+        urlGetPoll: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/test.json",
+        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/post/send.json"
+    });
+  </script>
 
 </body>
 </html>
