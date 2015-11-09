@@ -9,13 +9,17 @@
 
   <div class="poll-container">
       <div class="poll-header">
-          <div class="poll-prise">
-              <h3>Главный приз:</h3>
-              <p>Сертификат на $2000* на двоих. <a href="#">подробнее</a></p>
-          </div>
-          <div class="poll-question-remain js-poll-question-remain">
-              <p class="js-change-info">Осталось ответить на <span class="js-question-remain"></span>&nbsp;<span class="js-question-remain-text"></span></p>
-              <p>для того, чтобы принять участие в <a href="#">конкурсе</a></p>
+          <div class="poll-present"></div>
+          <div class="poll-header-info">
+              <div class="poll-prise">
+                  <h3>Главный приз:</h3>
+                  <p>Сертификат на $2000* на двоих. <a href="#" target="_blank">подробнее</a></p>
+              </div>
+              <div class="poll-question-remain js-poll-question-remain">
+                  <p class="js-change-info">Осталось ответить на <span class="js-question-remain"></span>&nbsp;<span class="js-question-remain-text"></span></p>
+                  <p>для того, чтобы принять участие в <a href="#" target="_blank">конкурсе</a></p>
+                  <div class="poll-sponsors js-poll-sponsors"></div>
+              </div>
           </div>
       </div>
       <div class="poll-content">
@@ -44,7 +48,6 @@
           </label>
           <div class="box-buttons">
               <div class="btn -skip js-btn-skip">Пропустить</div>
-              <!--<input type="submit" value="asd" class="btn -answer js-btn-answer" />-->
               <button class="btn -answer js-btn-answer disabled">Ответить</button>
           </div>
       </form>
@@ -61,7 +64,6 @@
           </label>
           <div class="box-buttons">
               <div class="btn -skip js-btn-skip">Пропустить</div>
-              <!--<input type="submit" value="asd" class="btn -answer js-btn-answer" />-->
               <button class="btn -answer js-btn-answer disabled">Ответить</button>
           </div>
       </form>
@@ -71,7 +73,7 @@
       <form class="question-detail-form -user js-parsley-form">
           <h1>Спасибо за ответы на вопросы.<br />Заполните форму участника для того чтобы мы могли с вами связаться</h1>
           <label class="info label-first-name"><span>Имя</span>
-              <input type="text" id="js-first-name" value="<% if (typeof(firstName) !== 'undefined') { %><%= firstName %><% } %>" autocomplete="off" required />
+              <input type="text" id="js-first-name" value="<% if (typeof(name) !== 'undefined') { %><%= name %><% } %>" autocomplete="off" required />
           </label>
           <label class="info label-last-name"><span>Фамилия</span>
               <input type="text" id="js-last-name" value="<% if (typeof(lastName) !== 'undefined') { %><%= lastName %><% } %>" autocomplete="off" required />
@@ -100,14 +102,24 @@
               </label>
           </div>
           <div class="box-buttons">
-              <div class="btn -answer js-btn-answer">Отправить</div>
+              <button class="btn -answer js-btn-answer">Отправить</button>
           </div>
       </form>
   </script>
 
   <script type="text/template" id="js-template-thanks">
-      <h2><% if (typeof(firstName) !== 'undefined') { %><%= firstName %><% } %>, поздравляю, ты участвуешь в конкурсе!</h2>
-      <h2>А теперь расшарь меня нежно!</h2>
+      <div class="thanks">
+          <h1>Спасибо за ваши ответы!<br/>Теперь вы участвуете в конкурсе!</h1>
+          <div class="box-social">
+              <a class="fb" href="#"></a>
+              <a class="vk" href="#"></a>
+              <a class="twitter" href="#"></a>
+              <a class="google" href="#"></a>
+          </div>
+          <div class="box-buttons">
+              <div class="btn-return js-btn-return"><a href="https://cntraveller.ru">Вернуться на главную</a></div>
+          </div>
+      </div>
   </script>
 
   <!-- main js file -->

@@ -1,11 +1,13 @@
 "use strict"
 
+
 var IScroll = require('./iscroll');
 
 module.exports = function(container, params) {
 
   var urlGetPoll = params.urlGetPoll,
       urlSendAnswers = params.urlSendAnswers,
+      countSwitchQuestions = 0,
 
       models = {},
       views = {},
@@ -31,11 +33,11 @@ module.exports = function(container, params) {
       }
   };
 
-  var sendToServer = function() {
+  var sendToServer = function(jsonObj) {
       $.ajax({
           type: "POST",
           url: urlSendAnswers,
-          data: JSON.stringify(blank),
+          data: JSON.stringify(jsonObj),
           dataType: "json",
           contentType: "application/json; charset=utf-8"
       });
@@ -64,6 +66,33 @@ module.exports = function(container, params) {
       }
   };
 
+  //Удалить при переносе
+  var designDeformation = function() {
+      if (poll.get('version') === 'desktop') {
+          $('.poll-header').css('background-image', 'none');
+          $('.poll-bg').css('background-image', 'url(' + poll.data.poll.background + ')');
+          if (!questionsCollection.findWhere({active: true})) {
+              $boxDetail.html('<img src="' + poll.data.poll.image + '" class="poll-present-img" />');
+          }
+      } else if (poll.get('version') === 'mobile') {
+          $('.poll-bg').css('background-image', 'none');
+          $('.poll-header').css('background-image', 'url(' + poll.data.poll.background + ')');
+          $('.poll-present').html('<img src="' + poll.data.poll.image + '" class="poll-present-img" />');
+      }
+  };
+
+  //Удалить при переносе
+  var viewSponsor = function() {
+      var sponsors = poll.data.poll.sponsors;
+      var currentSponsor = countSwitchQuestions % sponsors.length;
+      $('.js-poll-sponsors').html('<a href="' + sponsors[currentSponsor].website + '" target="_blank"><img src="' + sponsors[currentSponsor].logo + '" /></a>');
+  };
+
+  //Удалить при переносе
+  var hideSponsor = function() {
+      $('.js-poll-sponsors').html('');
+  };
+
 
   //Класс, описывающий голосовалку
   models.Poll = Backbone.Model.extend({
@@ -90,35 +119,27 @@ module.exports = function(container, params) {
           }, that);
 
           that.listenTo(window, 'resize', _.debounce(function() {
-              determineVersion(this.model)
-          }, 50));
+              determineVersion(that.model)
+          }, 100));
       },
 
       render: function() {
-          var that = this;
-
-          if (that.model.get('status') === 'created') {
+          var currentModel = this.model;
+          if (currentModel.get('status') === 'created') {
 
               var questionsCollectionView = new views.QuestionsCollectionView({ collection: questionsCollection });
               $boxList.html(questionsCollectionView.render());
               $(container).html($boxList);
 
-              if (that.model.get('version') === 'desktop') {
+              if (currentModel.get('version') === 'desktop') {
                   $(container).append($boxDetail);
               }
 
-              var iScroll = new IScroll('.box-list', {
-                  scrollbars: true,
-                  mouseWheel: true,
-                  click: true,
-                  preventDefault: false
-              });
+          } else if (currentModel.get('status') === 'loaded') {
 
-          } else if (that.model.get('status') === 'loaded') {
-
-              if (that.model.get('version') === 'mobile') {
+              if (currentModel.get('version') === 'mobile') {
                   $(container).find($boxDetail).remove();
-              } else if (that.model.get('version') === 'desktop') {
+              } else if (currentModel.get('version') === 'desktop') {
                   $(container).append($boxDetail);
               }
 
@@ -127,17 +148,55 @@ module.exports = function(container, params) {
                       question.set({active: false});
                       question.set({active: true});
                   }
-              }, that);
+              }, this);
           }
 
-          if (that.model.get('version') === 'mobile') {
+          if (currentModel.get('version') === 'mobile') {
               $('.poll-container').removeClass('desktop').addClass('mobile');
-          } else if (that.model.get('version') === 'desktop') {
+
+          } else if (currentModel.get('version') === 'desktop') {
               $('.poll-container').removeClass('mobile').addClass('desktop');
+
+              if (!iScroll && $('.box-list').length) {
+                  iScroll = new IScroll('.box-list', {
+                      scrollbars: true,
+                      mouseWheel: true,
+                      click: true,
+                      preventDefault: false
+                  });
+              }
           }
 
-          //Удалить при переносе - информация, для внешнего контейнера о том, сколько осталось вопросов
+          //var currentModel = this.model;
+          //
+          //$boxList = $('<div class="box-list"></div>');
+          //$boxDetail = $('<div class="box-detail"></div>');
+          //console.log($(container).html());
+          //if (currentModel.get('version') === 'desktop') {
+          //
+          //    $(container).html($boxList).append($boxDetail);
+          //    $boxList.html(questionsCollectionView.render());
+          //    //console.log($(container).html());
+          //
+          //} else if (currentModel.get('version') === 'mobile') {
+          //
+          //    $(container).html($boxList);
+          //    $boxList.html(questionsCollectionView.render());
+          //    //console.log($(container).html());
+          //
+          //}
+          //
+          //
+          //if (currentModel.get('version') === 'mobile') {
+          //    $('.poll-container').removeClass('desktop').addClass('mobile');
+          //
+          //} else if (currentModel.get('version') === 'desktop') {
+          //    $('.poll-container').removeClass('mobile').addClass('desktop');
+          //}
+
+          //Удалить при переносе
           updateInfo();
+          designDeformation();
       }
   });
 
@@ -192,6 +251,10 @@ module.exports = function(container, params) {
               var questionDetailView = new views.QuestionDetailView({ model: currentModel });
               if (poll.get('version') === 'desktop') {
                   $boxDetail.html(questionDetailView.render());
+
+                  //Удалить при переносе - смена background
+                  $('.poll-bg').css('background-image', 'url(' + currentModel.get('image') + ')');
+
               } else if (poll.get('version') === 'mobile') {
                   currentElement.append(questionDetailView.render());
               }
@@ -201,7 +264,10 @@ module.exports = function(container, params) {
                   initSelect(currentModel.get('src'));
               }
 
+              viewSponsor();
+
               currentElement.addClass('active');
+
           } else {
               currentElement.removeClass('active');
           }
@@ -211,11 +277,15 @@ module.exports = function(container, params) {
 
       events: {
           'click': 'chooseQuestion'
-
       },
 
       chooseQuestion: function() {
           var currentModel = this.model;
+
+          if (currentModel.get('active') || $(container).find('.selectize-input').hasClass('focus')) {
+              return false;
+          }
+
           questionsCollection.each(function(model) {
               if(currentModel.collection.indexOf(currentModel) !== model.collection.indexOf(model)) {
                   model.set({
@@ -227,6 +297,8 @@ module.exports = function(container, params) {
               }
           });
           userInfo.set({active: false});
+
+          countSwitchQuestions++;
       }
   });
 
@@ -295,25 +367,37 @@ module.exports = function(container, params) {
 
                   //Теперь нужно обновить "слепок" ответов
                   var currentModelID = currentModel.get('id');
+                  var currentAnswer = currentModel.get('answer');
                   var blankAnswers = blank.answers;
                   var sameBlankAnswer = _.findWhere(blankAnswers, {
                       questionID: currentModelID
                   });
 
                   if (sameBlankAnswer) {
-                      sameBlankAnswer.value = currentModel.get('answer');
+                      sameBlankAnswer.value = currentAnswer;
                   } else {
                       var newAnswer = function(){
                           return {
-                              questionID: currentModel.get('id'),
-                              value: currentModel.get('answer')
+                              "questionID": currentModelID,
+                              "value": currentAnswer
                           };
                       };
                       blankAnswers.push(newAnswer());
                   }
 
-                  //Отправляем слепок на сервер
-                  sendToServer();
+                  var oneAnswerBlank = {
+                      "voter": {
+                          "sessionID": blank.voter.sessionID,
+                          "pollID": blank.voter.pollID
+                      },
+                      "answer": {
+                          "questionID": currentModelID,
+                          "value": currentAnswer
+                      }
+                  };
+
+                  //Отправляем один ответ на сервер
+                  sendToServer(oneAnswerBlank);
 
                   //Удалить при переносе - информация, для внешнего контейнера о том, сколько осталось вопросов
                   updateInfo();
@@ -326,6 +410,8 @@ module.exports = function(container, params) {
 
                       var userInfoDetailView = new views.UserInfoDetailView({ model: userInfo });
                       $(container).html(userInfoDetailView.render());
+
+                      hideSponsor();
                   } else {
                       this.nextQuestion();
                   }
@@ -373,6 +459,8 @@ module.exports = function(container, params) {
               readyToAnswer: false
           });
           nextModel.set({active: true});
+
+          countSwitchQuestions++;
       },
 
       readyToAnswer: function() {
@@ -498,20 +586,20 @@ module.exports = function(container, params) {
 
       render: function() {
           var currentModel = this.model;
-          var thatElement = this.$el;
+          var currentElement = this.$el;
           var template = this.template(currentModel.toJSON());
-          thatElement.html(template);
+          currentElement.html(template);
 
           if (currentModel.get('done')) {
-              thatElement.addClass('answered');
+              currentElement.addClass('answered');
           }
 
           if (currentModel.get('active')) {
               var userInfoDetailView = new views.UserInfoDetailView({ model: currentModel });
-              $('.box-detail').html(userInfoDetailView.render());
-              thatElement.addClass('active');
+              $boxDetail.html(userInfoDetailView.render());
+              currentElement.addClass('active');
           } else {
-              thatElement.removeClass('active');
+              currentElement.removeClass('active');
           }
 
           return this.el;
@@ -549,6 +637,9 @@ module.exports = function(container, params) {
           var template = this.template(this.model.toJSON());
           this.$el.html(template);
 
+          //Удалить при переносе
+          designDeformation();
+
           return this.el;
       },
 
@@ -557,8 +648,11 @@ module.exports = function(container, params) {
       },
 
       submitData: function(event) {
-          //event.stopImmediatePropagation();
-          //event.preventDefault();
+          var e = event || false;
+          if (e) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+          }
 
           var currentModel = this.model;
 
@@ -573,7 +667,7 @@ module.exports = function(container, params) {
               var email = $('#js-email').val();
               var phone = $('#js-phone').val();
 
-              var agreePartisipation = function() {
+              var agreeParticipation = function() {
                   var checked = false;
                   if ($('input#js-agree-partisipation').prop('checked')) {
                       checked = true;
@@ -598,12 +692,13 @@ module.exports = function(container, params) {
               };
 
               currentModel.set({
+                  active: false,
                   done: true,
-                  firstName: firstName,
+                  name: firstName,
                   lastName: lastName,
                   email: email,
                   phone: phone,
-                  agreePartisipation: agreePartisipation(),
+                  agreeParticipation: agreeParticipation(),
                   agreePolicy: agreePolicy(),
                   agreeNews: agreeNews()
               });
@@ -612,11 +707,8 @@ module.exports = function(container, params) {
               _.extend(blank.voter, currentModel.attributes);
 
               //Отправляем "слепок" на сервер
-              sendToServer();
+              sendToServer(blank.voter);
               poll.set({status: 'submitted'});
-
-              //Деактивируем элемент
-              currentModel.set({active: false});
 
               //Удалить при переносе - информация, для внешнего контейнера о том, сколько осталось вопросов
               updateInfo();
@@ -633,49 +725,89 @@ module.exports = function(container, params) {
   var poll = new models.Poll;
   var pollView = new views.PollView({ model: poll });
   var userInfo = new models.UserInfo;
-  var questionsCollection = new collections.QuestionsCollection;
+  var questionsCollection;
+  var questionsCollectionView;
 
-  var $boxDetail = $('<div class="box-detail"></div>');
   var $boxList = $('<div class="box-list"></div>');
+  var $boxDetail = $('<div class="box-detail"></div>');
   //Создаем объект, хранящий информацию, которую нужно будет отправлять
   var blank;
+  //Переменная для iScroll
+  var iScroll;
+
 
   $.when(
-      //Заполняем коллекцию данными с сервера
-      questionsCollection.fetch(),
-
-      //Запрашиваем данные, которые пользователь уже ввел в рамках текущей сессии
-      $.getJSON(urlSendAnswers, function(data) {
-          blank = data;
+      //Запрос данных
+      $.getJSON(urlGetPoll, function(data) {
+          poll.data = data;
       })
   ).then(function() {
-          //У каждой модели коллекции обновляем поле ответа с помощью данных, которые содержатся в "слепке"
-          questionsCollection.each(function(model) {
-              var currentModelID = model.attributes.id;
-              var sameBlankAnswer = _.findWhere(blank.answers, {
-                  questionID: currentModelID
-              });
 
-              if (sameBlankAnswer) {
-                  model.set({
-                      answer: sameBlankAnswer.value,
-                      answered: true
-                  });
-              }
+      //Запрос данных, которые пользователь уже ввел в рамках текущей сессии
+      blank = poll.data.result;
+
+      if (!blank.answers) {
+          blank.answers = [];
+      }
+
+      if (!blank.voter.pollID) {
+          blank.voter.pollID = poll.data.id;
+      }
+
+      //Заполнение коллекции
+      questionsCollection = new collections.QuestionsCollection(poll.data.poll.questions);
+
+      //Сортировка коллекции по полю "number"
+      questionsCollection.comparator = function(model) {
+          return model.get("number");
+      };
+      questionsCollection.sort();
+
+      //У каждой модели коллекции обновляем поле ответа с помощью данных, которые содержатся в "слепке"
+      questionsCollection.each(function(model) {
+          var currentModelID = model.get('id');
+          var sameBlankAnswer = _.findWhere(blank.answers, {
+              questionID: currentModelID
           });
 
-          //Обновляем данные о пользователе с помощью данных, которые содержатся в "слепке"
-          _.extend(userInfo.attributes, blank.voter);
+          if (sameBlankAnswer) {
+              model.set({
+                  answer: sameBlankAnswer.value,
+                  answered: true
+              });
+          }
+      });
 
-          //Отрисовываем всю коллекцию через отрисовку глобалной модели
-          pollView.render();
+      questionsCollectionView = new views.QuestionsCollectionView({ collection: questionsCollection });
 
-          //Меняем статус глобальной модели
-          poll.set({status: 'loaded'});
+      //Обновляем данные о пользователе с помощью данных, которые содержатся в "слепке"
+      _.extend(userInfo.attributes, blank.voter);
+
+      //Отрисовываем всю коллекцию через отрисовку глобальной модели
+      pollView.render();
+
+      //Меняем статус глобальной модели
+      poll.set({status: 'loaded'});
+
+      //Если canVote === false, тогда пользователь не может голосовать
+      if (blank.voter.canVote === false) {
+          poll.set({status: 'submitted'});
+          userInfo.set({
+              done: true,
+              active: true
+          });
+
+          var userInfoDetailView = new views.UserInfoDetailView({ model: userInfo });
+          $(container).html(userInfoDetailView.render());
+      }
+
+      //Удалить при переносе - информация, для внешнего контейнера о том, сколько осталось вопросов
+      updateInfo();
 
   }, function() {
-          console.log("Как минимум один из ajax-запросов выполнен неуспешно");
+      console.log("Как минимум один из ajax-запросов выполнен неуспешно");
   });
+
 
   //Инициализация Selectize
   var initSelect = function(url) {
@@ -704,7 +836,7 @@ module.exports = function(container, params) {
                       callback();
                   },
                   success: function(res) {
-                      callback(res.options.slice(0, 5));
+                      callback(res.options.slice(0, 20));
                   }
               });
           }

@@ -1,3 +1,6 @@
+const NODE_ENV = process.env.NODE_ENV || 'development';
+//const webpack = require('webpack');
+
 var webpack = require("webpack");
 var BowerWebpackPlugin = require('bower-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -11,6 +14,11 @@ module.exports = {
         filename: '[name].js', // Template based on keys in entry above
         library: 'app'
     },
+    watch : NODE_ENV == 'development',
+    watchOptions: {
+      aggregateTimeout: 50,
+    },
+    //devtool: NODE_ENV == 'development' ? 'cheap-inline-module-source-map': null,
     module:  {
         loaders: [
             // fonts
@@ -32,6 +40,10 @@ module.exports = {
             }
         ]
     },
+    // run -  webpack-dev-server
+    devServer: {
+        contentBase: "./dist",
+    },
     plugins: [
         new BowerWebpackPlugin({
           excludes: /.*\.less$/
@@ -45,6 +57,21 @@ module.exports = {
 
         new ExtractTextPlugin('[name].css', {
             allChunks: true
-        })
+        }),
+
     ]
+
 };
+
+//  NODE_ENV=production webpack
+if(NODE_ENV == 'production') {
+  module.exports.plugins.push(
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false,
+        drop_console: true,
+        unsafe: true
+      }
+    })
+  )
+}
