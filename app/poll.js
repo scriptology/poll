@@ -8,7 +8,7 @@ require("parsleyjs");
 require("selectize");
 // require('./js/poll');
 
-var poll = require('./js/poll');
+var poll = require('./js/main');
 exports.poll = poll;
 
 // require sass
