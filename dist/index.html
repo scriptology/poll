@@ -13,7 +13,7 @@
           <div class="poll-header-info">
               <div class="poll-prise">
                   <h3>Главный приз:</h3>
-                  <p>Сертификат на $2000* на двоих. <a href="#" target="_blank">подробнее</a></p>
+                  <p><span class="js-poll-description"></span> <a href="#" target="_blank">подробнее</a></p>
               </div>
               <div class="poll-question-remain js-poll-question-remain">
                   <p class="js-change-info">Осталось ответить на <span class="js-question-remain"></span>&nbsp;<span class="js-question-remain-text"></span></p>
@@ -127,8 +127,12 @@
 
   <script>
     var pollInit = new app.poll('.js-poll-init', {
-        urlGetPoll: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/test.json",
-        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/post/send.json"
+        urlGetPoll: "http://akasalinskiy.cntraveller.ru/api/poll/get_vote",
+        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/api/poll/save_result",
+        urlGetAnswerData: "http://akasalinskiy.cntraveller.ru/api/poll/get_answer_data"
+
+//        urlGetPoll: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/test.json",
+//        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/post/send.json"
     });
   </script>
 
