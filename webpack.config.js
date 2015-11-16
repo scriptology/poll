@@ -16,7 +16,7 @@ module.exports = {
     },
     watch : NODE_ENV == 'development',
     watchOptions: {
-      aggregateTimeout: 50,
+      aggregateTimeout: 50
     },
     //devtool: NODE_ENV == 'development' ? 'cheap-inline-module-source-map': null,
     module:  {
@@ -42,7 +42,7 @@ module.exports = {
     },
     // run -  webpack-dev-server
     devServer: {
-        contentBase: "./dist",
+        contentBase: "./dist"
     },
     plugins: [
         new BowerWebpackPlugin({
@@ -52,12 +52,12 @@ module.exports = {
         new webpack.ProvidePlugin({
             $:      "jquery",
             jQuery: "jquery",
-            _: "underscore",
+            _: "underscore"
         }),
 
         new ExtractTextPlugin('[name].css', {
             allChunks: true
-        }),
+        })
 
     ]
 

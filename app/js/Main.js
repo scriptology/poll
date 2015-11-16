@@ -1,5 +1,11 @@
 "use strict";
 
+var NProgress = require("nprogress");
+NProgress.configure({
+    parent: '.selectize-input',
+    template: '<div role="bar"><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>' //изменен шаблон для того, чтобы скрыть bar
+});
+
 
 var IScroll = require('./iscroll');
 
@@ -13,7 +19,6 @@ module.exports = function(container, params) {
         models = {},
         views = {},
         collections = {};
-
 
     var getTemplate = function(id) {
         return _.template($('#' + id).html());
@@ -54,10 +59,12 @@ module.exports = function(container, params) {
             if (questionRemain === 0) {
                 $('.js-change-info').html('Заполните форму');
             } else {
-                var questionRemainText;
-                if (questionRemain === 1) {
+                var questionRemainText,
+                    r10 = questionRemain % 10,
+                    r100 = questionRemain % 100;
+                if (r10 === 1 && r100 !== 11) {
                     questionRemainText = 'вопрос';
-                } else if (questionRemain < 5) {
+                } else if (r10 < 5 && r10 !== 0 && r100 !== 11 && r100 !== 12 && r100 !== 13 && r100 !== 14) {
                     questionRemainText = 'вопроса';
                 } else {
                     questionRemainText = 'вопросов'
@@ -86,8 +93,10 @@ module.exports = function(container, params) {
     //Удалить при переносе
     var viewSponsor = function() {
         var sponsors = poll.data.poll.sponsors;
-        var currentSponsor = countSwitchQuestions % sponsors.length;
-        $('.js-poll-sponsors').html('<a href="' + sponsors[currentSponsor].website + '" target="_blank"><img src="' + sponsors[currentSponsor].logo + '" /></a>');
+        if (sponsors.length > 0) {
+            var currentSponsor = countSwitchQuestions % sponsors.length;
+            $('.js-poll-sponsors').html('<a href="' + sponsors[currentSponsor].website + '" target="_blank"><img src="' + sponsors[currentSponsor].logo + '" /></a>');
+        }
     };
 
     //Удалить при переносе
@@ -100,9 +109,9 @@ module.exports = function(container, params) {
     models.Poll = Backbone.Model.extend({
         initialize: function() {
             var that = this;
-            that.set({
-                status: 'created'
-            });
+            if (!that.get('status')) {
+                that.set({status: 'created'});
+            }
             determineVersion(this);
         }
     });
@@ -145,12 +154,18 @@ module.exports = function(container, params) {
                     $(container).append($boxDetail);
                 }
 
-                questionsCollection.each(function(question) {
+                questionsCollection.forEach(function(question) {
                     if (question.get('active')) {
                         question.set({active: false});
                         question.set({active: true});
                     }
                 }, this);
+
+            } else if (currentModel.get('status') === 'answered') {
+                var userInfoDetailView = new views.UserInfoDetailView({ model: userInfo });
+                $(container).html(userInfoDetailView.render());
+
+                hideSponsor();
             }
 
             if (currentModel.get('version') === 'mobile') {
@@ -164,37 +179,11 @@ module.exports = function(container, params) {
                         scrollbars: true,
                         mouseWheel: true,
                         click: true,
-                        preventDefault: false
+                        preventDefault: false,
+                        bounce: false
                     });
                 }
             }
-
-            //var currentModel = this.model;
-            //
-            //$boxList = $('<div class="box-list"></div>');
-            //$boxDetail = $('<div class="box-detail"></div>');
-            //console.log($(container).html());
-            //if (currentModel.get('version') === 'desktop') {
-            //
-            //    $(container).html($boxList).append($boxDetail);
-            //    $boxList.html(questionsCollectionView.render());
-            //    //console.log($(container).html());
-            //
-            //} else if (currentModel.get('version') === 'mobile') {
-            //
-            //    $(container).html($boxList);
-            //    $boxList.html(questionsCollectionView.render());
-            //    //console.log($(container).html());
-            //
-            //}
-            //
-            //
-            //if (currentModel.get('version') === 'mobile') {
-            //    $('.poll-container').removeClass('desktop').addClass('mobile');
-            //
-            //} else if (currentModel.get('version') === 'desktop') {
-            //    $('.poll-container').removeClass('mobile').addClass('desktop');
-            //}
 
             //Удалить при переносе
             updateInfo();
@@ -261,14 +250,29 @@ module.exports = function(container, params) {
                     currentElement.append(questionDetailView.render());
                 }
 
-                //Инициализируем Selectize после того как отрендерился детальный вопрос, так как до этого момента нечего инициализировать
-                if (currentModel.get('type') === 'select' && currentModel.get('active')) {
+                var answer = currentModel.get('answer');
+                if (currentModel.get('answered')) {
+                    if (currentModel.get('type') === 'text') {
+                        $('.js-field-answer').val(answer);
+                    } else if (currentModel.get('type') === 'select') {
+                        $('.js-selectize-poll').html('<option value="1">' + answer + '</option>');
+                    }
+                }
+
+                //Инициализация Selectize
+                if (currentModel.get('type') === 'select') {
                     initSelect(currentModel.get('answerDataType'));
                 }
 
-                viewSponsor();
+                if (currentModel.get('type') === 'text') {
+                    $('.js-field-answer').focus();
+                } else if (currentModel.get('type') === 'select') {
+                    $('.selectize-input.items input').focus();
+                }
 
                 currentElement.addClass('active');
+
+                viewSponsor();
 
             } else {
                 currentElement.removeClass('active');
@@ -288,7 +292,7 @@ module.exports = function(container, params) {
                 return false;
             }
 
-            questionsCollection.each(function(model) {
+            questionsCollection.forEach(function(model) {
                 if(currentModel.collection.indexOf(currentModel) !== model.collection.indexOf(model)) {
                     model.set({
                         active: false,
@@ -307,7 +311,7 @@ module.exports = function(container, params) {
     views.QuestionDetailView = Backbone.View.extend({
         tagName: 'div',
         className: 'question-detail',
-        minNecessarySymbols: 3,
+        minNecessarySymbols: 1,
 
         initialize: function() {
             var currentModel = this.model;
@@ -420,12 +424,15 @@ module.exports = function(container, params) {
                 }
             } else {
                 var input;
+                var errorBox = currentElement.find('.js-error-text');
                 if (currentModel.get('type') === 'select') {
                     input = currentElement.find('.selectize-input');
                     input.addClass('error-input');
+                    errorBox.html('Введите хотя бы 1 символ, чтобы получить список доступных ответов')
                 } else {
                     input = currentElement.find('input.js-field-answer');
                     input.addClass('error-input');
+                    errorBox.html('Введите ответ')
                 }
             }
         },
@@ -447,15 +454,6 @@ module.exports = function(container, params) {
                 nextModel = questionsCollection.at(currentModelIndex + 1);
             }
 
-            var counter = 1;
-            while (nextModel.get('answered') && counter < 100) {
-                counter++;
-                if ((currentModelIndex + counter) >= questionsCollection.length) {
-                    counter = counter - (questionsCollection.length);
-                }
-                nextModel = questionsCollection.at(currentModelIndex + counter);
-            }
-
             currentModel.set({
                 active: false,
                 readyToAnswer: false
@@ -471,16 +469,18 @@ module.exports = function(container, params) {
             var buttonAnswer = currentElement.find('.js-btn-answer');
             var answer;
             var input;
+            var errorBox = currentElement.find('.js-error-text');
 
             if (currentModel.get('type') === 'select' && currentModel.get('active')) {
                 input = currentElement.find('.selectize-input');
 
                 if (input.hasClass('error-input')) {
                     input.removeClass('error-input');
+                    errorBox.html('');
                 }
 
                 if (input.children().length > 1) {
-                    answer = currentElement.find('.selectize-input .item').html();
+                    answer = input.find('.item').html();
                 }
 
                 if (answer) {
@@ -498,6 +498,7 @@ module.exports = function(container, params) {
 
                 if (input.hasClass('error-input')) {
                     input.removeClass('error-input');
+                    errorBox.html('');
                 }
 
                 answer = input.val();
@@ -553,7 +554,7 @@ module.exports = function(container, params) {
 
         render: function() {
             var that = this;
-            that.collection.each(function(question) {
+            that.collection.forEach(function(question) {
                 var questionView = new views.QuestionView({ model: question });
                 that.$el.append(questionView.render());
             }, that);
@@ -614,7 +615,7 @@ module.exports = function(container, params) {
         clickHandle: function() {
             var that = this;
 
-            questionsCollection.each(function(question) {
+            questionsCollection.forEach(function(question) {
                 question.set({active: false});
             }, that);
 
@@ -709,7 +710,7 @@ module.exports = function(container, params) {
                 _.extend(blank.voter, currentModel.attributes);
 
                 //Отправляем "слепок" на сервер
-                sendToServer(blank.voter);
+                sendToServer(blank);
                 poll.set({status: 'submitted'});
 
                 //Удалить при переносе - информация, для внешнего контейнера о том, сколько осталось вопросов
@@ -753,20 +754,20 @@ module.exports = function(container, params) {
             }
 
             if (!blank.voter.pollID) {
-                blank.voter.pollID = poll.data.id;
+                blank.voter.pollID = poll.data.poll.id;
             }
 
             //Заполнение коллекции
-            questionsCollection = new collections.QuestionsCollection(poll.data.poll.questions);
+            questionsCollection = new collections.QuestionsCollection(poll.data.poll.questions, function(model) {return model.get('number');});
 
             //Сортировка коллекции по полю "number"
-            questionsCollection.comparator = function(model) {
-                return model.get("number");
-            };
-            questionsCollection.sort();
+            //questionsCollection.comparator = function(model) {
+            //    return model.get('number');
+            //};
+            //questionsCollection.sort();
 
             //У каждой модели коллекции обновляем поле ответа с помощью данных, которые содержатся в "слепке"
-            questionsCollection.each(function(model) {
+            questionsCollection.forEach(function(model) {
                 var currentModelID = model.get('id');
                 var sameBlankAnswer = _.findWhere(blank.answers, {
                     questionID: currentModelID
@@ -778,6 +779,14 @@ module.exports = function(container, params) {
                         answered: true
                     });
                 }
+
+                //$.ajax({
+                //    url: model.get('image'),
+                //    type: 'GET',
+                //    error: function () {
+                //        console.log("Что-то пошло не так в модуле голосования при ajax-загрузке картинки для вопроса");
+                //    }
+                //});
             });
 
             questionsCollectionView = new views.QuestionsCollectionView({ collection: questionsCollection });
@@ -785,11 +794,17 @@ module.exports = function(container, params) {
             //Обновляем данные о пользователе с помощью данных, которые содержатся в "слепке"
             _.extend(userInfo.attributes, blank.voter);
 
+            if (questionsCollection.remaining().length === 0) {
+                poll.set({status: 'answered'});
+            }
+
             //Отрисовываем всю коллекцию через отрисовку глобальной модели
             pollView.render();
 
             //Меняем статус глобальной модели
-            poll.set({status: 'loaded'});
+            if (poll.get('status') === 'created') {
+                poll.set({status: 'loaded'});
+            }
 
             //Если canVote === false, тогда пользователь не может голосовать
             if (blank.voter.canVote === false) {
@@ -815,33 +830,47 @@ module.exports = function(container, params) {
     var initSelect = function(answerDataType) {
         var $select = $('.js-selectize-poll').selectize({
             valueField: 'id',
-            labelField: 'name',
-            searchField: 'name',
-
-            preload: true,
+            labelField: 'text',
+            searchField: 'text',
+            sortField: 'id',
+            //preload: true,  //предварительная загрузка, когда ничего не введено в поле
             create: false,
+            highlight: false,
             render: {
                 option: function(item, escape) {
-                    return '<div>'+ escape(item.name) +'</div>';
+                    return '<div>'+ escape(item.text) +'</div>';
                 }
             },
 
             load: function(query, callback) {
-                $.ajax({
-                    url: urlGetAnswerData,
-                    type: 'GET',
-                    dataType: 'json',
-                    data: {
-                        type: answerDataType,
-                        q: query
-                    },
-                    error: function() {
-                        callback();
-                    },
-                    success: function(res) {
-                        callback(res.options.slice(0, 20));
-                    }
-                });
+                if (query.length >= 1) {
+                    NProgress.start();
+                    this.clearOptions();
+                    this.renderCache = {};
+                    $.ajax({
+                        url: urlGetAnswerData,
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            type: answerDataType,
+                            q: query
+                        },
+                        error: function () {
+                            callback();
+                            console.log("Ошибка загрузки данных для вопроса");
+                            NProgress.done();
+                        },
+                        success: function (res) {
+                            if (res.options.length === 0) {
+                                $('.js-error-text').html('Такого варианта ответа нет. Введите другой.');
+                                $('.selectize-input').addClass('error-input');
+                            } else {
+                                callback(res.options);
+                            }
+                            NProgress.done();
+                        }
+                    });
+                }
             }
         });
     };

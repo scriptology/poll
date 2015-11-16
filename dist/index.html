@@ -13,11 +13,11 @@
           <div class="poll-header-info">
               <div class="poll-prise">
                   <h3>Главный приз:</h3>
-                  <p><span class="js-poll-description"></span> <a href="#" target="_blank">подробнее</a></p>
+                  <p><span class="js-poll-description"></span> <a href="https://www.cntraveller.ru/awards/about/" target="_blank">подробнее</a></p>
               </div>
               <div class="poll-question-remain js-poll-question-remain">
                   <p class="js-change-info">Осталось ответить на <span class="js-question-remain"></span>&nbsp;<span class="js-question-remain-text"></span></p>
-                  <p>для того, чтобы принять участие в <a href="#" target="_blank">конкурсе</a></p>
+                  <p>для того, чтобы принять участие в <a href="https://www.cntraveller.ru/awards/about/" target="_blank">конкурсе</a></p>
                   <div class="poll-sponsors js-poll-sponsors"></div>
               </div>
           </div>
@@ -43,11 +43,12 @@
       <form class="question-detail-form">
           <h1><%= name %></h1>
           <p class="description"><%= description %></p>
-          <label>
-              <input type="text" class="js-field-answer" placeholder="Ваш ответ" value="<% if (typeof(answer) !== 'undefined') { %><%= answer %><% } %>" autocomplete="off" />
+          <label class="answer-area">
+              <input type="text" class="js-field-answer" placeholder="Ваш ответ" value="" autocomplete="off" />
+              <span class="error-text js-error-text"></span>
           </label>
           <div class="box-buttons">
-              <div class="btn -skip js-btn-skip">Пропустить</div>
+              <!--<div class="btn -skip js-btn-skip">Пропустить</div>-->
               <button class="btn -answer js-btn-answer disabled">Ответить</button>
           </div>
       </form>
@@ -57,13 +58,14 @@
       <form class="question-detail-form">
           <h1><%= name %></h1>
           <p class="description"><%= description %></p>
-          <label>
+          <label class="answer-area">
               <select class="js-selectize-poll" >
-                  <option value="">Выберите ответ</option>
+                  <option value="">Ваш ответ</option>
               </select>
+              <span class="error-text js-error-text"></span>
           </label>
           <div class="box-buttons">
-              <div class="btn -skip js-btn-skip">Пропустить</div>
+              <!--<div class="btn -skip js-btn-skip">Пропустить</div>-->
               <button class="btn -answer js-btn-answer disabled">Ответить</button>
           </div>
       </form>
@@ -73,16 +75,16 @@
       <form class="question-detail-form -user js-parsley-form">
           <h1>Спасибо за ответы на вопросы.<br />Заполните форму участника для того чтобы мы могли с вами связаться</h1>
           <label class="info label-first-name"><span>Имя</span>
-              <input type="text" id="js-first-name" value="<% if (typeof(name) !== 'undefined') { %><%= name %><% } %>" autocomplete="off" required />
+              <input type="text" id="js-first-name" value="" autocomplete="off" required />
           </label>
           <label class="info label-last-name"><span>Фамилия</span>
-              <input type="text" id="js-last-name" value="<% if (typeof(lastName) !== 'undefined') { %><%= lastName %><% } %>" autocomplete="off" required />
+              <input type="text" id="js-last-name" value="" autocomplete="off" required />
           </label>
           <label class="info label-phone"><span>Телефон</span>
-              <input type="text" id="js-phone" value="<% if (typeof(phone) !== 'undefined') { %><%= phone %><% } %>" autocomplete="off" required />
+              <input type="text" id="js-phone" value="" autocomplete="off" required />
           </label>
           <label class="info label-email"><span>Email</span>
-              <input type="text" id="js-email" value="<% if (typeof(email) !== 'undefined') { %><%= email %><% } %>" autocomplete="off" required />
+              <input type="text" id="js-email" value="" autocomplete="off" required />
           </label>
           <div class="box-agree">
               <label class="label-agree">
@@ -127,12 +129,10 @@
 
   <script>
     var pollInit = new app.poll('.js-poll-init', {
-        urlGetPoll: "http://akasalinskiy.cntraveller.ru/api/poll/get_vote",
-        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/api/poll/save_result",
-        urlGetAnswerData: "http://akasalinskiy.cntraveller.ru/api/poll/get_answer_data"
+        urlGetPoll: "https://www.cntraveller.ru/api/poll/get_vote",
+        urlSendAnswers: "https://www.cntraveller.ru/api/poll/save_result",
+        urlGetAnswerData: "https://www.cntraveller.ru/api/poll/get_answer_data"
 
-//        urlGetPoll: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/test.json",
-//        urlSendAnswers: "http://akasalinskiy.cntraveller.ru/_html/anketa/json/post/send.json"
     });
   </script>
 
